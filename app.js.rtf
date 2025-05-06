@@ -1,0 +1,70 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2709
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 const video = document.getElementById('video');\
+const canvas = document.getElementById('overlay');\
+const ctx = canvas.getContext('2d');\
+\
+let mirrored = false;\
+let rotation = 0;\
+\
+// Start camera\
+navigator.mediaDevices.getUserMedia(\{ video: \{ facingMode: 'environment' \} \})\
+  .then(stream => \{\
+    video.srcObject = stream;\
+  \});\
+\
+// Adjust canvas size\
+video.addEventListener('loadedmetadata', () => \{\
+  canvas.width = video.videoWidth;\
+  canvas.height = video.videoHeight;\
+  drawSpiral();\
+\});\
+\
+// Draw spiral\
+function drawSpiral() \{\
+  ctx.clearRect(0, 0, canvas.width, canvas.height);\
+  ctx.save();\
+\
+  ctx.translate(canvas.width / 2, canvas.height / 2);\
+  ctx.rotate(rotation * Math.PI / 180);\
+  if (mirrored) ctx.scale(-1, 1);\
+\
+  ctx.translate(-canvas.width / 2, -canvas.height / 2);\
+\
+  ctx.strokeStyle = 'rgba(255, 255, 0, 0.6)';\
+  ctx.lineWidth = 4;\
+\
+  const w = canvas.width;\
+  const h = canvas.height;\
+  const phi = 1.618;\
+\
+  // Draw a golden spiral using quarter-circles\
+  let x = 0, y = 0, side = Math.min(w, h);\
+  for (let i = 0; i < 5; i++) \{\
+    ctx.beginPath();\
+    ctx.arc(x + side, y + side, side, Math.PI, Math.PI * 1.5);\
+    ctx.stroke();\
+\
+    // Next rectangle\
+    x += side;\
+    side = side / phi;\
+  \}\
+\
+  ctx.restore();\
+\}\
+\
+function toggleMirror() \{\
+  mirrored = !mirrored;\
+  drawSpiral();\
+\}\
+\
+function rotateSpiral() \{\
+  rotation = (rotation + 90) % 360;\
+  drawSpiral();\
+\}\
+}
